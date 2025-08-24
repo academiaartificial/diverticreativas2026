@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.7); }
+        }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .float { animation: float 3s ease-in-out infinite; }
+        
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        /* Mobile touch optimizations */
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 overflow-hidden">
+        <!-- Header Compacto para Móvil -->
+        <div class="glass-effect bg-white/15 p-3 flex items-center justify-between transition-all duration-300" 
+             v-bind:class="{ 'bg-blue-500/25': selectedFiles.length > 0 }">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-white/25 rounded-md flex items-center justify-center transition-all duration-300"
+                     v-bind:class="{ 'rotate-12 scale-110': isLoading }">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 21l4-4 4 4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-white font-semibold text-base transition-all duration-300">
+                        {{ selectedFiles.length > 0 ? `${selectedFiles.length} seleccionados` : 'Downloads' }}
+                    </h1>
+                    <p class="text-white/70 text-xs" v-if="selectedFiles.length > 0">
+                        {{ getTotalSize() }} total
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-1">
+                <button @click="selectAll" 
+                        class="touch-target bg-white/20 text-white px-2 py-1 rounded-md text-xs font-medium hover:bg-white/30 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                        v-bind:class="{ 'bg-blue-500/50': selectedFiles.length === files.length }">
+                    {{ selectedFiles.length === files.length ? '✓' : 'Todo' }}
+                </button>
+                <button v-if="selectedFiles.length > 0" 
+                        @click="deselectAll"
+                        class="touch-target bg-red-500/30 text-white px-2 py-1 rounded-md text-xs font-medium hover:bg-red-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-3 pb-20 overflow-y-auto max-h-screen">
+            <!-- Album Art Section Compacto -->
+            <div class="mb-4 flex justify-center">
+                <div class="relative cursor-pointer" @click="toggleAlbumAnimation">
+                    <div class="w-32 h-32 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl shadow-xl flex items-center justify-center overflow-hidden transition-all duration-500 transform"
+                         :class="{ 'float': isAlbumAnimated, 'scale-105 rotate-2': isAlbumAnimated }">
+                        <div class="text-center p-3">
+                            <div class="text-white font-bold text-sm mb-1 transition-all duration-300"
+                                 :class="{ 'text-blue-300': isAlbumAnimated }">LONGORIA</div>
+                            <div class="text-blue-300 font-bold text-lg mb-1 transition-all duration-300"
+                                 :class="{ 'pulse-glow': isAlbumAnimated }">LIVE</div>
+                            <div class="text-white text-xs">Listening Party</div>
+                            <div class="mt-1 w-8 h-8 bg-blue-400 rounded-full mx-auto flex items-center justify-center transition-all duration-300"
+                                 :class="{ 'animate-spin': isAlbumAnimated }">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-md transition-all duration-300"
+                         :class="{ 'animate-pulse scale-110': isAlbumAnimated }">
+                        <span class="text-white font-bold text-xs">LIVE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files List Optimizado para Móvil -->
+            <div class="space-y-1 max-w-sm mx-auto w-full">
+                <div v-for="file in files" :key="file.id"
+                     @click="toggleFileSelection(file.id)"
+                     class="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all duration-300 transform hover:scale-[1.01] active:scale-[0.99]"
+                     :class="{
+                         'bg-white/25 shadow-md border border-blue-400/30': selectedFiles.includes(file.id),
+                         'bg-white/15 hover:bg-white/20': !selectedFiles.includes(file.id)
+                     }">
+                    <div :class="file.color" 
+                         class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-base shadow-sm transition-all duration-300"
+                         :class="{ 'animate-bounce': selectedFiles.includes(file.id) && recentlySelected === file.id }">
+                        {{ file.icon }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-white font-medium text-sm transition-all duration-300 truncate"
+                             :class="{ 'text-blue-200': selectedFiles.includes(file.id) }">
+                            {{ file.name }}
+                        </div>
+                        <div class="text-white/70 text-xs capitalize flex items-center gap-2">
+                            {{ file.type }} • {{ file.size }}
+                            <span v-if="file.isNew" class="bg-blue-500 text-white text-xs px-1 py-0.5 rounded-full animate-pulse">
+                                Nuevo
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div v-if="selectedFiles.includes(file.id)" 
+                             class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center transition-all duration-300 transform scale-110">
+                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <a :href="file.driveUrl" target="_blank" @click.stop 
+                           class="touch-target p-1.5 rounded-full hover:bg-white/15 transition-all duration-300 transform hover:scale-110 active:scale-95">
+                            <svg class="w-4 h-4 text-white/60 hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar Compacto -->
+            <div v-if="isLoading" class="mt-4 bg-white/20 rounded-full h-1.5 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-full transition-all duration-300"
+                     :style="{ width: loadingProgress + '%' }"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation Móvil -->
+        <div class="fixed bottom-0 left-0 right-0 glass-effect bg-white/10 border-t border-white/20 safe-area-pb">
+            <div class="flex items-center justify-around py-2">
+                <button v-for="(tab, index) in bottomTabs" :key="index"
+                        @click="activeTab = index"
+                        class="touch-target flex flex-col items-center gap-0.5 p-1 transition-all duration-300 transform active:scale-95"
+                        :class="{ 'scale-110 text-blue-300': activeTab === index, 'hover:scale-105': activeTab !== index }">
+                    <div :class="tab.bgColor" 
+                         class="w-5 h-5 rounded flex items-center justify-center transition-all duration-300"
+                         :class="{ 'animate-pulse': activeTab === index }">
+                        <span class="text-white text-xs font-bold" v-html="tab.icon"></span>
+                    </div>
+                    <span class="text-xs text-white transition-all duration-300"
+                          :class="{ 'font-semibold text-blue-300': activeTab === index }">
+                        {{ tab.label }}
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast Notifications Móvil -->
+        <div v-if="showToast" 
+             class="fixed top-16 left-2 right-2 bg-blue-500 text-white px-3 py-2 rounded-lg shadow-lg transition-all duration-300 transform z-50"
+             :class="{ 'translate-y-0 opacity-100': showToast, '-translate-y-full opacity-0': !showToast }">
+            <div class="text-center text-sm font-medium">{{ toastMessage }}</div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    selectedFiles: [],
+                    isLoading: false,
+                    loadingProgress: 0,
+                    isAlbumAnimated: false,
+                    activeTab: 1, // Files tab active by default
+                    showToast: false,
+                    toastMessage: '',
+                    recentlySelected: null,
+                    files: [
+                        { id: 1, name: 'ListeningParty Vine', type: 'video', icon: '🎵', color: 'bg-purple-500', size: '24.5 MB', isNew: true, driveUrl: 'https://drive.google.com/file/d/1eUJqxqWaKcfZ7mHdGJhvBWqJ8QkL3mNp/view' },
+                        { id: 2, name: 'Leaky Strawberry', type: 'audio', icon: '🍓', color: 'bg-red-500', size: '8.2 MB', isNew: false, driveUrl: 'https://drive.google.com/file/d/11pqbhZ442BWWSMafR13yHdvUQ-kDf9g1/view' },
+                        { id: 3, name: 'PowerPopArt2', type: 'image', icon: '🎨', color: 'bg-yellow-500', size: '3.1 MB', isNew: true, driveUrl: 'https://drive.google.com/drive/folders/11pqbhZ442BWWSMafR13yHdvUQ-kDf9g1' },
+                        { id: 4, name: 'ListeningParty Logo', type: 'image', icon: '🎭', color: 'bg-pink-500', size: '1.8 MB', isNew: false, driveUrl: 'https://drive.google.com/file/d/1pL4M7sQ2vE9wR6yT5uI8oL4M7sQ2vE9w/view' },
+                        { id: 5, name: 'ListeningParty Hand', type: 'image', icon: '✋', color: 'bg-orange-500', size: '2.3 MB', isNew: false, driveUrl: 'https://drive.google.com/file/d/1aS6D9fG2hJ5kL8mN1qP4rT7vX0zC3eF6/view' },
+                        { id: 6, name: 'ListeningParty Skull', type: 'image', icon: '💀', color: 'bg-gray-700', size: '4.7 MB', isNew: true, driveUrl: 'https://drive.google.com/file/d/1wE4R7tY1uI5oP8qW2eR7tY1uI5oP8qW2/view' },
+                        { id: 7, name: 'ListeningParty Portrait', type: 'image', icon: '🎪', color: 'bg-purple-600', size: '6.4 MB', isNew: false, driveUrl: 'https://drive.google.com/file/d/1mK3N6pQ9sT2vE6wR0yT4uI7oL3N6pQ9s/view' },
+                        { id: 8, name: 'ListeningParty InviteFinal', type: 'document', icon: '📄', color: 'bg-blue-500', size: '892 KB', isNew: true, driveUrl: 'https://drive.google.com/file/d/1NuaFdNiquZk__N_xoO332_uN317IEaW7/view' }
+                    ],
+                    bottomTabs: [
+                        { icon: '♪', label: 'Music', bgColor: 'bg-red-400' },
+                        { icon: '📁', label: 'Files', bgColor: 'bg-blue-400' },
+                        { icon: '1', label: 'Notes', bgColor: 'bg-white text-black' },
+                        { icon: '🖼', label: 'Photos', bgColor: 'bg-green-400' },
+                        { icon: '□□', label: 'Apps', bgColor: 'bg-gray-600' },
+                        { icon: '★', label: 'Favs', bgColor: 'bg-yellow-500' }
+                    ]
+                }
+            },
+            methods: {
+                toggleFileSelection(fileId) {
+                    if (this.selectedFiles.includes(fileId)) {
+                        this.selectedFiles = this.selectedFiles.filter(id => id !== fileId);
+                    } else {
+                        this.selectedFiles.push(fileId);
+                        this.recentlySelected = fileId;
+                        setTimeout(() => this.recentlySelected = null, 600);
+                    }
+                    this.showToastMessage(
+                        this.selectedFiles.includes(fileId) 
+                            ? 'Archivo seleccionado' 
+                            : 'Selección removida'
+                    );
+                },
+                selectAll() {
+                    if (this.selectedFiles.length === this.files.length) {
+                        this.selectedFiles = [];
+                        this.showToastMessage('Selección limpiada');
+                    } else {
+                        this.selectedFiles = this.files.map(f => f.id);
+                        this.showToastMessage('Todos seleccionados');
+                    }
+                },
+                deselectAll() {
+                    this.selectedFiles = [];
+                    this.showToastMessage('Selección limpiada');
+                },
+                getTotalSize() {
+                    const selectedFileObjects = this.files.filter(f => this.selectedFiles.includes(f.id));
+                    const totalMB = selectedFileObjects.reduce((total, file) => {
+                        const size = parseFloat(file.size.replace(/[^\d.]/g, ''));
+                        const unit = file.size.includes('KB') ? 0.001 : 1;
+                        return total + (size * unit);
+                    }, 0);
+                    return totalMB > 1000 ? `${(totalMB/1000).toFixed(1)} GB` : `${totalMB.toFixed(1)} MB`;
+                },
+                toggleAlbumAnimation() {
+                    this.isAlbumAnimated = !this.isAlbumAnimated;
+                    setTimeout(() => this.isAlbumAnimated = false, 3000);
+                },
+                downloadFile(file) {
+                    // Open Google Drive file in new tab
+                    window.open(file.driveUrl, '_blank');
+                    this.showToastMessage(`Abriendo ${file.name}...`);
+                },
+                showToastMessage(message) {
+                    this.toastMessage = message;
+                    this.showToast = true;
+                    setTimeout(() => this.showToast = false, 2000);
+                }
+            },
+            mounted() {
+                // Simular carga inicial
+                setTimeout(() => {
+                    this.showToastMessage('¡App lista!');
+                }, 500);
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
