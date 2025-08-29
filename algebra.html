@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algebra</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.7); }
+        }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .float { animation: float 3s ease-in-out infinite; }
+        
+        @keyframes download-bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-4px) scale(1.05); }
+        }
+        .download-bounce { animation: download-bounce 0.6s ease-in-out; }
+        
+        @keyframes progress-bar {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        .progress-animation { animation: progress-bar 2s ease-in-out; }
+        
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        /* Download status indicators */
+        .downloading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 overflow-hidden">
+        <!-- Header para Downloads -->
+        <div class="glass-effect bg-white/15 p-3 flex items-center justify-between transition-all duration-300 bg-blue-500/25" 
+             :class="{ 'bg-blue-500/25': downloadQueue.length > 0 }">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-white/25 rounded-md flex items-center justify-center transition-all duration-300"
+                     :class="{ 'animate-spin': isDownloading }">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-white font-semibold text-base transition-all duration-300">
+                        {{ downloadQueue.length > 0 ? `${downloadQueue.length} descargando` : 'Drive Downloads' }}
+                    </h1>
+                     <!-- Header para Downloads -->
+                    <p class="text-white/70 text-xs" v-if="downloadQueue.length > 0">
+                        {{ getDownloadStatus() }}
+                    </p>
+
+                </div>
+            </div>
+            <div class="flex items-center gap-1">
+                <button @click="downloadAll" 
+                        :disabled="isDownloading"
+                        class="touch-target bg-blue-500/30 text-white px-3 py-1 rounded-md text-xs font-medium hover:bg-blue-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50">
+                    <span v-if="!isDownloading">⬇ Todos</span>
+                    <span v-else class="animate-pulse">⏳</span>
+                </button>
+                <button v-if="downloadQueue.length > 0" 
+                        @click="clearQueue"
+                        class="touch-target bg-red-500/30 text-white px-2 py-1 rounded-md text-xs font-medium hover:bg-red-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-3 pb-20 overflow-y-auto max-h-screen">
+            <!-- Album Art Section -->
+            <div class="mb-4 flex justify-center">
+                <div class="relative cursor-pointer" @click="toggleAlbumAnimation">
+                    <div class="w-32 h-32 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl shadow-xl flex items-center justify-center overflow-hidden transition-all duration-500 transform"
+                         :class="{ 'float': isAlbumAnimated, 'scale-105 rotate-2': isAlbumAnimated }">
+                        <div class="text-center p-3">
+                            <div class="text-white font-bold text-sm mb-1 transition-all duration-300"
+                                 :class="{ 'text-blue-300': isAlbumAnimated }">CURSO</div>
+                            <div class="text-blue-300 font-bold text-lg mb-1 transition-all duration-300"
+                                 :class="{ 'pulse-glow': isAlbumAnimated }">ÁLGEBRA</div>
+                            <div class="text-white text-xs">Download Center</div>
+                            <div class="mt-1 w-8 h-8 bg-blue-400 rounded-full mx-auto flex items-center justify-center transition-all duration-300"
+                                 :class="{ 'animate-bounce': isAlbumAnimated }">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-md transition-all duration-300"
+                         :class="{ 'animate-pulse scale-110': isDownloading }">
+                        <span class="text-white font-bold text-xs">⬇</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files List para Downloads -->
+            <div class="space-y-1 max-w-sm mx-auto w-full">
+                <div v-for="file in files" :key="file.id"
+                     class="relative flex items-center gap-3 p-2 rounded-lg transition-all duration-300 transform hover:scale-[1.01] active:scale-[0.99] overflow-hidden"
+                     :class="{
+                         'bg-blue-500/25 shadow-md border border-blue-400/30 downloading': downloadQueue.includes(file.id),
+                         'bg-white/15 hover:bg-white/20': !downloadQueue.includes(file.id),
+                         'bg-blue-600/30': downloadedFiles.includes(file.id)
+                     }">
+                    
+                    <!-- Progress bar para descarga -->
+                    <div v-if="downloadQueue.includes(file.id)" 
+                         class="absolute bottom-0 left-0 h-1 bg-blue-400 transition-all duration-300 progress-animation"></div>
+                    
+                    <div :class="file.color" 
+                         class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-base shadow-sm transition-all duration-300"
+                         :class="{ 
+                             'download-bounce': recentlyDownloaded === file.id,
+                             'animate-pulse': downloadQueue.includes(file.id)
+                         }">
+                        <span v-if="downloadedFiles.includes(file.id)">✅</span>
+                        <span v-else-if="downloadQueue.includes(file.id)">⏳</span>
+                        <span v-else>{{ file.icon }}</span>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <div class="text-white font-medium text-sm transition-all duration-300 truncate"
+                             :class="{ 
+                                 'text-blue-200': downloadQueue.includes(file.id),
+                                 'text-blue-300': downloadedFiles.includes(file.id)
+                             }">
+                            {{ file.name }}
+                        </div>
+                        <div class="text-white/70 text-xs capitalize flex items-center gap-2">
+                            {{ file.type }} • {{ file.size }}
+                            <span v-if="file.isNew && !downloadedFiles.includes(file.id)" 
+                                  class="bg-blue-500 text-white text-xs px-1 py-0.5 rounded-full animate-pulse">
+                                Nuevo
+                            </span>
+                            <span v-if="downloadedFiles.includes(file.id)" 
+                                  class="bg-blue-600 text-white text-xs px-1 py-0.5 rounded-full">
+                                Descargado
+                            </span>
+                            <span v-if="downloadQueue.includes(file.id) && !downloadedFiles.includes(file.id)" 
+                                  class="bg-yellow-500 text-white text-xs px-1 py-0.5 rounded-full animate-pulse">
+                                Descargando...
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-1">
+                        <!-- Botón de descarga individual -->
+                        <button @click="downloadFile(file)" 
+                                :disabled="downloadQueue.includes(file.id) || downloadedFiles.includes(file.id)"
+                                class="touch-target p-1.5 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 disabled:opacity-50"
+                                :class="{
+                                    'bg-blue-500/30 hover:bg-blue-500/50': !downloadQueue.includes(file.id) && !downloadedFiles.includes(file.id),
+                                    'bg-yellow-500/30': downloadQueue.includes(file.id),
+                                    'bg-blue-600/50': downloadedFiles.includes(file.id)
+                                }">
+                            <svg v-if="downloadedFiles.includes(file.id)" class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <svg v-else-if="downloadQueue.includes(file.id)" class="w-4 h-4 text-yellow-300 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <svg v-else class="w-4 h-4 text-white/80 hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </button>
+                        
+                        <!-- Botón para abrir en Drive
+                        <a :href="file.driveUrl" target="_blank" @click.stop 
+                           class="touch-target p-1.5 rounded-full hover:bg-white/15 transition-all duration-300 transform hover:scale-110 active:scale-95">
+                            <svg class="w-4 h-4 text-white/60 hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                        -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Progress Global -->
+            <div v-if="downloadQueue.length > 0" class="mt-4">
+                <div class="bg-white/20 rounded-full h-2 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-full transition-all duration-500"
+                         :style="{ width: getOverallProgress() + '%' }"></div>
+                </div>
+                <div class="text-center text-white/80 text-xs mt-1">
+                    {{ downloadedFiles.length }} de {{ files.length }} archivos descargados
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 glass-effect bg-white/10 border-t border-white/20 safe-area-pb">
+            <div class="flex items-center justify-around py-2">
+                <a v-for="(tab, index) in bottomTabs" :key="index"
+                   :href="tab.url"
+                   :target="tab.external ? '_blank' : '_self'"
+                   @click="activeTab = index"
+                   class="touch-target flex flex-col items-center gap-0.5 p-1 transition-all duration-300 transform active:scale-95 no-underline"
+                   :class="{ 'scale-110 text-blue-300': activeTab === index, 'hover:scale-105': activeTab !== index }">
+                    <div :class="tab.bgColor" 
+                         class="w-5 h-5 rounded flex items-center justify-center transition-all duration-300"
+                         :class="{ 'animate-pulse': activeTab === index }">
+                        <span class="text-white text-xs font-bold" v-html="tab.icon"></span>
+                    </div>
+                    <span class="text-xs text-white transition-all duration-300"
+                          :class="{ 'font-semibold text-blue-300': activeTab === index }">
+                        {{ tab.label }}
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div v-if="showToast" 
+             class="fixed top-16 left-2 right-2 bg-blue-500 text-white px-3 py-2 rounded-lg shadow-lg transition-all duration-300 transform z-50"
+             :class="{ 'translate-y-0 opacity-100': showToast, '-translate-y-full opacity-0': !showToast }">
+            <div class="text-center text-sm font-medium">{{ toastMessage }}</div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    downloadQueue: [],
+                    downloadedFiles: [],
+                    isDownloading: false,
+                    isAlbumAnimated: false,
+                    activeTab: 1,
+                    showToast: false,
+                    toastMessage: '',
+                    recentlyDownloaded: null,
+                    files: [
+                        { id: 1, name: 'Boletines', type: '1° a 5°', icon: '🎵', color: 'bg-purple-500', size: '2025 PDF', isNew: false, driveUrl: 'https://drive.google.com/drive/folders/1fBNmLnlIJbr5Y7P_cC_75-5DVg4pJjgF?usp=sharing' },
+                        { id: 2, name: 'PPT 1°', type: 'Cap. 1 al cap. 6', icon: '🍓', color: 'bg-red-500', size: '2025 PPT', isNew: false, driveUrl: 'https://drive.google.com/drive/folders/1jB6li5AmXb1FpE4ReL1oNWi-jIj0zwW9?usp=sharing/view' },
+                        { id: 3, name: 'PPT 2°', type: 'Cap. 1 al cap. 6', icon: '🎨', color: 'bg-yellow-500', size: '2025 PPT', isNew: false, driveUrl: 'https://drive.google.com/drive/folders/15LC_NyPGvScA573jRXx7yuuhggeRn-Nw?usp=sharing' },
+                        { id: 4, name: 'PPT 3°', type: 'Cap. 1 al cap. 6', icon: '🎭', color: 'bg-pink-500', size: '2025 PPT', isNew: false, driveUrl: 'https://drive.google.com/drive/folders/1x9TbTcxcKy2lVvYkrStouUWI9BSDpGRR?usp=sharing/view' },
+                        { id: 5, name: 'PPT 4°', type: 'Cap. 1 al cap. 6', icon: '✋', color: 'bg-orange-500', size: '2025 PPT', isNew: false, driveUrl: 'https://drive.google.com/drive/folders/1fs5hLxO8BAR4fPPjO033BNBczX0ANped?usp=sharing/view' },
+                        { id: 6, name: 'PPT 5°', type: 'Cap. 1 al cap. 6', icon: '💀', color: 'bg-gray-700', size: '2025 PPT', isNew: false, driveUrl: 'https://drive.google.com/drive/folders/1KagA4UFzmC2OhMw8xzI2qzdPni0NU2x7?usp=sharing/view' },
+                        { id: 7, name: 'HelicoChallenge', type: 'Cap. 1 al cap. 6', icon: '🎪', color: 'bg-purple-600', size: '2025 PDF', isNew: false, driveUrl: 'https://drive.google.com/file/d/1mK3N6pQ9sT2vE6wR0yT4uI7oL3N6pQ9s/view' },
+                        { id: 8, name: 'Simulacro', type: 'document', icon: '📄', color: 'bg-blue-500', size: '2025 PDF', isNew: false, driveUrl: 'https://drive.google.com/file/d/1NuaFdNiquZk__N_xoO332_uN317IEaW7/view' },
+                        { id: 9, name: 'Exploratorio', type: 'document', icon: '✋', color: 'bg-orange-500', size: '2025 PDF', isNew: false, driveUrl: 'https://drive.google.com/drive/folders/1vppIiPvT2qgmWlMVPjHyClfBEGLShIgI?usp=sharing/view' }
+                    ],
+                    bottomTabs: [
+                        { icon: '♪', label: 'Home', bgColor: 'bg-red-400', url: 'index.html', external: false },
+                        { icon: '⬇', label: 'Materiales 2026', bgColor: 'bg-blue-400', url: 'materiales.html', external: false },
+                        { icon: '🖼', label: 'Indicaciones', bgColor: 'bg-blue-400', url: 'indicaciones.html', external: false },
+                        { icon: '□□', label: 'Plan Académico', bgColor: 'bg-gray-600', url: 'plan.html', external: false },
+                        { icon: '★', label: 'Cronograma', bgColor: 'bg-yellow-500', url: 'cronograma.html', external: false }
+                    ]
+                }
+            },
+            methods: {
+                downloadFile(file) {
+                    if (this.downloadQueue.includes(file.id) || this.downloadedFiles.includes(file.id)) {
+                        return;
+                    }
+                    
+                    // Agregar a cola de descarga
+                    this.downloadQueue.push(file.id);
+                    this.showToastMessage(`Descargando ${file.name}...`);
+                    
+                    // Simular descarga con progreso
+                    setTimeout(() => {
+                        // Abrir enlace de Google Drive
+                        const downloadUrl = file.driveUrl.replace('/view', '/download');
+                        window.open(downloadUrl, '_blank');
+                        
+                        // Marcar como descargado después de un tiempo
+                        setTimeout(() => {
+                            this.downloadQueue = this.downloadQueue.filter(id => id !== file.id);
+                            this.downloadedFiles.push(file.id);
+                            this.recentlyDownloaded = file.id;
+                            this.showToastMessage(`✅ ${file.name} descargado`);
+                            
+                            setTimeout(() => this.recentlyDownloaded = null, 600);
+                        }, 2000);
+                    }, 500);
+                },
+                
+                downloadAll() {
+                    if (this.isDownloading) return;
+                    
+                    const pendingFiles = this.files.filter(f => 
+                        !this.downloadQueue.includes(f.id) && !this.downloadedFiles.includes(f.id)
+                    );
+                    
+                    if (pendingFiles.length === 0) {
+                        this.showToastMessage('Todos los archivos ya están descargados');
+                        return;
+                    }
+                    
+                    this.isDownloading = true;
+                    this.showToastMessage(`Iniciando descarga de ${pendingFiles.length} archivos...`);
+                    
+                    pendingFiles.forEach((file, index) => {
+                        setTimeout(() => {
+                            this.downloadFile(file);
+                        }, index * 1000); // Espaciar las descargas
+                    });
+                    
+                    // Finalizar proceso de descarga masiva
+                    setTimeout(() => {
+                        this.isDownloading = false;
+                        this.showToastMessage('🎉 ¡Todas las descargas iniciadas!');
+                    }, pendingFiles.length * 1000 + 2000);
+                },
+                
+                clearQueue() {
+                    this.downloadQueue = [];
+                    this.showToastMessage('Cola de descarga limpiada');
+                },
+                
+                getDownloadStatus() {
+                    const total = this.files.length;
+                    const downloaded = this.downloadedFiles.length;
+                    const downloading = this.downloadQueue.length;
+                    
+                    if (downloading > 0) {
+                        return `${downloading} descargando, ${downloaded} completos`;
+                    }
+                    return `${downloaded} de ${total} descargados`;
+                },
+                
+                getOverallProgress() {
+                    const total = this.files.length;
+                    const completed = this.downloadedFiles.length;
+                    return Math.round((completed / total) * 100);
+                },
+                
+                toggleAlbumAnimation() {
+                    this.isAlbumAnimated = !this.isAlbumAnimated;
+                    setTimeout(() => this.isAlbumAnimated = false, 3000);
+                },
+                
+                showToastMessage(message) {
+                    this.toastMessage = message;
+                    this.showToast = true;
+                    setTimeout(() => this.showToast = false, 2500);
+                }
+            },
+            
+            mounted() {
+                setTimeout(() => {
+                    this.showToastMessage('📥 Centro de descargas listo');
+                }, 500);
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
