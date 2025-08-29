@@ -1,0 +1,104 @@
+
+        :root {
+            --color-white: #fff;
+            --ui-text-muted: #e2e8f0;
+            --tw-shadow: 0 0 #0000;
+            --tw-ring-offset-width: 0px;
+            --tw-ring-offset-color: #fff;
+            --color-primary-600: 0 161 85;
+            --color-primary-700: 0 127 69;
+            --header-height: 4rem;
+            --tw-ring-inset: ;
+            --tw-ring-offset-width: 0px;
+            --tw-ring-offset-color: #fff;
+            --tw-shadow: 0 0 #04c76f;
+            --color-primary-DEFAULT: var(--color-primary-500);
+        }
+        .dark {
+            --ui-primary: var(--ui-color-primary-400);
+            --ui-secondary: var(--ui-color-secondary-400);
+            --ui-success: var(--ui-color-success-400);
+            --ui-info: var(--ui-color-info-400);
+            --ui-warning: var(--ui-color-warning-400);
+            --ui-error: var(--ui-color-error-400);
+            --ui-text-highlighted: var(--color-white);
+        }
+        
+        :where(.i-lucide\:circle-check) {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            background-color: #214fc9;
+            -webkit-mask-image: var(--svg);
+            mask-image: var(--svg);
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12l2 2l4-4'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        .text-highlighted {
+            color: var(--color-white);
+        }
+        .text-muted {
+            color: var(--ui-text-muted);
+        }
+         @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.7); }
+        }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .float { animation: float 3s ease-in-out infinite; }
+        
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        .ring-inset {
+            --tw-ring-inset: inset;
+        }
+       
+        .ring {
+            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-color) #000000;
+            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-color)) rgb(255 255 255 / 50%);
+            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+        }
+        .text-primary {
+            color: rgb(var(--color-primary-500));      
+        }
+
+        .hover:ring-2:hover {
+            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--color-primary-500);
+            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #00c16a);
+        }
+        .hover:ring-primary-500:hover {
+            --tw-ring-opacity: 1;
+            --tw-ring-color: rgb(var(--color-primary-500)/var(--tw-ring-opacity));
+        }
+        .i-ph-check-circle-fill, .i-ph-circles-four {
+            background-color: currentColor;
+            display: inline-block;
+            height: 1em;
+            -webkit-mask-image: var(--svg);
+            mask-image: var(--svg);
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            width: 1em;
+        }
+        .i-ph-check-circle-fill {
+            --svg: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 256 256'%3E%3Cpath d='M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24m45.66 85.66-56 56a8 8 0 0 1-11.32 0l-24-24a8 8 0 0 1 11.32-11.32L112 148.69l50.34-50.35a8 8 0 0 1 11.32 11.32'/%3E%3C/svg%3E");
+        }
+    
