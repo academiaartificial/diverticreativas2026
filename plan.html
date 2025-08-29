@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drive Download Manager</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 overflow-hidden">
+        <!-- Header -->
+        <div class="glass-effect bg-white/15 px-3 py-5 flex items-center justify-between transition-all duration-300">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-white/25 rounded-md flex items-center justify-center transition-all duration-300">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-white font-semibold text-base transition-all duration-300">Drive Downloads</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-3 overflow-y-auto max-h-screen flex items-center justify-center">
+            <!-- Album Art Section -->
+            <div class="mb-4 flex justify-center">
+                <div class="relative cursor-pointer" @click="toggleAlbumAnimation">
+                    
+                        <div class="text-center p-3">
+                            <div class="text-white font-bold text-2xl sm:text-3xl mb-1 transition-all duration-300"
+                                 :class="{ 'text-blue-300': isAlbumAnimated }">DIVERTICREATIVAS 2026</div>
+                            <div class="text-blue-300 font-bold text-lg mb-1 transition-all duration-300"
+                                 :class="{ 'pulse-glow': isAlbumAnimated }">PLAN ACADÉMICO</div>
+                            
+                            <div class="mt-1 w-8 h-8 bg-blue-400 rounded-full mx-auto flex items-center justify-center transition-all duration-300"
+                                 :class="{ 'animate-bounce': isAlbumAnimated }">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    
+                    
+                </div>
+            </div>
+        </div>    
+        <!-- Files List -->
+         <div class="w-full max-w-[64rem] mx-auto">
+
+         
+            <div class="relative overflow-x-auto pb-[10rem] -mt-4 md:pt-4 lg:pt-[38px] lg:pb-[10rem]">
+                    <table class="min-w-full table-fixed divide-gray-300 dark:divide-gray-700 divide-y-0"><!---->
+                        <thead class="relative">
+                            <tr class=""><!----><!--[-->
+                                <th scope="col" class="rtl:text-right first:text-left first:border-none text-center !py-0 !px-0 odd:border-l odd:border-r odd:border-t odd:border-primary px-4 py-3.5 text-gray-900 dark:text-gray-900 font-semibold text-sm"><!--[-->
+                                    <span>
+
+                                    </span><!--]-->
+                                </th>
+                                <th scope="col" class="rtl:text-right first:text-left first:border-none text-center !py-0 !px-0 odd:border-l odd:border-r odd:border-t odd:border-primary px-4 py-3.5 text-gray-200 dark:text-gray-200 font-semibold text-sm"><!--[-->
+                                    <div class="flex flex-col gap-y-2 px-3.5 py-4">
+                                        <span class="text-xl">
+                                            Ciclo
+                                        </span>
+                                        <span class="text-gray-500 dark:text-gray-100 text-sm font-norma">
+                                            I
+                                        </span>
+                                    </div><!--]-->
+                                </th>
+                                <th scope="col" class="rtl:text-right first:border-none text-center !py-0 !px-0 odd:border-l odd:border-r odd:border-t odd:border-green-500 px-4 py-3.5 text-gray-200 dark:text-gray-200 font-semibold text-sm"><!--[-->
+                                    <div class="flex flex-col gap-y-2 px-3.5 py-4">
+                                        <span class="text-xl">
+                                            Ciclo
+                                        </span>
+                                        <span class="text-gray-500 dark:text-gray-100 text-sm font-normal">
+                                            II
+                                        </span>
+                                    </div><!--]-->
+                                </th><!--]-->
+                                <th scope="col" class="rtl:text-right first:text-left first:border-none text-center !py-0 !px-0 odd:border-l odd:border-r odd:border-t odd:border-green-500 px-4 py-3.5 text-gray-900 dark:text-gray-900 font-semibold text-sm"><!--[-->
+                                    <div class="flex flex-col gap-y-2 px-3.5 py-4 bg-gradient-to-b from-green-500/10 via-gray-300/10 to-gray-300/10 dark:from-green-500/10 dark:via-gray-100/50 dark:to-gray-100/50">
+                                        <span class="text-xl">
+                                            Ciclo
+                                        </span>
+                                        <span class="text-gray-500 dark:text-gray-500 text-sm font-normal">
+                                            III
+                                        </span>
+                                    </div><!--]-->
+                                </th>
+                                <th scope="col" class="rtl:text-right first:text-left first:border-none text-center !py-0 !px-0 odd:border-l odd:border-r odd:border-t odd:border-green-500 px-4 py-3.5 text-gray-100 dark:text-gray-100 font-semibold text-sm"><!--[-->
+                                    <div class="flex flex-col gap-y-2 px-3.5 py-4">
+                                        <span class="text-xl">
+                                            Ciclo
+                                        </span>
+                                        <span class="text-gray-500 dark:text-gray-100 text-sm font-normal">
+                                            IV
+                                        </span>
+                                    </div><!--]-->
+                                </th><!--]-->
+                                <th scope="col" class="rtl:text-right first:text-left  first:border-none text-center !py-0 !px-0 odd:border-l odd:border-r odd:border-t odd:border-green-500 px-4 py-3.5 text-gray-100 dark:text-gray-100 font-semibold text-sm"><!--[-->
+                                    <div class="flex flex-col gap-y-2 px-3.5 py-4">
+                                        <span class="text-xl">
+                                            Ciclo
+                                        </span>
+                                        <span class="text-gray-500 dark:text-gray-100 text-sm font-normal">
+                                            V
+                                        </span>
+                                    </div><!--]-->
+                                </th><!--]-->
+                            </tr><!---->
+                        </thead>
+                        <tbody class=""><!--[-->
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm font-semibold text-gray-100 dark:text-gray-100 border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    ARITMÉTICA <!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200  bg-gray-100/30 dark:bg-gray-100/30 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500"><!--[-->
+                                    
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    
+                                </td><!--]-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    
+                                </td><!--]-->
+                            </tr>
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm font-semibold text-gray-100 dark:text-gray-100 border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    ÁLGEBRA<!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200  bg-gray-100/30 dark:bg-gray-100/30 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                            </tr>
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm font-semibold text-gray-100 dark:text-gray-100 border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    GEOMETRÍA<!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100">
+
+                                    </span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200  bg-gray-100/30 dark:bg-gray-100/30 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                            </tr>
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm font-semibold text-gray-100 dark:text-gray-100 border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    TRIGONOMETRÍA<!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200 bg-gray-100/30 dark:bg-gray-100/30 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                            </tr>
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm font-semibold text-gray-100 dark:text-gray-100 border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    RAZ. MATEMÁTICO<!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-500 dark:text-gray-500 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200 bg-gray-100/30 dark:bg-gray-100/30 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                            </tr>
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm font-semibold text-gray-100 dark:text-gray-100 border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    FÍSICA<!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200  bg-gray-100/30 dark:bg-gray-100/30 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500"><!--[-->
+                                    
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    
+                                </td><!--]--><!--]-->
+                            </tr>
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm font-semibold text-gray-100 dark:text-gray-100 border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    QUÍMICA<!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200 "><!--[--><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200  bg-gray-100/30 dark:bg-gray-100 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[--><!--]-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                            </tr>
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm font-semibold text-gray-100 dark:text-gray-100 border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    LENGUAJE<!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200 "><!--[--><!--]-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200  bg-gray-100/30 dark:bg-gray-100 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500"><!--[-->
+                                    
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[--><!--]-->
+                                </td><!--]-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    
+                                </td><!--]-->
+                            </tr>
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm font-semibold text-gray-100 dark:text-gray-100 border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    RAZ. VERBAL<!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200 "><!--[--><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200  bg-gray-100/30 dark:bg-gray-100 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[--><!--]-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                            </tr>
+                            <tr class=""><!----><!--[-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    CREATIVIDAD<!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-500 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-gray-100 dark:text-gray-100"></span><!----><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-t-gray-300 border-t-gray-200  bg-gray-100/30 dark:bg-gray-100/30 md:border-l md:border-r bg-gray-100/30 dark:bg-gray-100/30 border-l-green-500 border-r-green-500 md:border-b border-b-green-500"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td>
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                                <td class="whitespace-nowrap first:text-left text-center px-4 py-4 text-gray-100 dark:text-gray-100 text-sm border-t dark:border-gray-300 border-gray-200"><!--[-->
+                                    <span class="i-ph-check-circle-fill h-5 w-5 text-primary"></span><!--]-->
+                                </td><!--]-->
+                                
+                            </tr>
+                            </tbody>
+                        </table>
+            </div>    
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 glass-effect bg-white/10 border-t border-white/20 safe-area-pb">
+            <div class="flex items-center justify-around py-2">
+                <a v-for="(tab, index) in bottomTabs" :key="index"
+                   :href="tab.href"
+                   :target="tab.target || '_self'"
+                   class="touch-target flex flex-col items-center gap-0.5 p-1 transition-all duration-300 transform hover:scale-105 active:scale-95 no-underline hover:bg-white/5 rounded-lg">
+                    <div :class="tab.bgColor" 
+                         class="w-5 h-5 rounded flex items-center justify-center transition-all duration-300 shadow-sm">
+                        <span class="text-white text-xs font-bold" v-html="tab.icon"></span>
+                    </div>
+                    <span class="text-xs text-white/80 font-medium transition-all duration-300">
+                        {{ tab.label }}
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        
+    </div>
+
+    <script src="app.js"></script>
+    
+</body>
+</html>
