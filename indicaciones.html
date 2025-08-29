@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drive Download Manager</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --color-white: #fff;
+            --ui-text-muted: #e2e8f0;
+            --tw-shadow: 0 0 #0000;
+            --tw-ring-offset-width: 0px;
+            --tw-ring-offset-color: #fff;
+        }
+        .dark {
+            --ui-primary: var(--ui-color-primary-400);
+            --ui-secondary: var(--ui-color-secondary-400);
+            --ui-success: var(--ui-color-success-400);
+            --ui-info: var(--ui-color-info-400);
+            --ui-warning: var(--ui-color-warning-400);
+            --ui-error: var(--ui-color-error-400);
+            --ui-text-highlighted: var(--color-white);
+        }
+        
+        :where(.i-lucide\:circle-check) {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            background-color: #214fc9;
+            -webkit-mask-image: var(--svg);
+            mask-image: var(--svg);
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12l2 2l4-4'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        .text-highlighted {
+            color: var(--color-white);
+        }
+        .text-muted {
+            color: var(--ui-text-muted);
+        }
+         @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.7); }
+        }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .float { animation: float 3s ease-in-out infinite; }
+        
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        .ring-inset {
+            --tw-ring-inset: inset;
+        }
+       
+        .ring {
+            --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-color) #000000;
+            --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-color)) rgb(255 255 255 / 50%);
+            box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 overflow-hidden">
+        <!-- Header -->
+        <div class="glass-effect bg-white/15 px-3 py-5 flex items-center justify-between transition-all duration-300">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-white/25 rounded-md flex items-center justify-center transition-all duration-300">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-white font-semibold text-base transition-all duration-300">Drive Downloads</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-3 pb-10 overflow-y-auto max-h-screen flex items-center justify-center">
+            <!-- Album Art Section -->
+            <div class="mb-4 flex justify-center">
+                <div class="relative cursor-pointer" @click="toggleAlbumAnimation">
+                    
+                        <div class="text-center p-3">
+                            <div class="text-white font-bold text-2xl sm:text-3xl mb-1 transition-all duration-300"
+                                 :class="{ 'text-blue-300': isAlbumAnimated }">DIVERTICREATIVAS 2026</div>
+                            <div class="text-blue-300 font-bold text-lg mb-1 transition-all duration-300"
+                                 :class="{ 'pulse-glow': isAlbumAnimated }">INDICACIONES</div>
+                            
+                            <div class="mt-1 w-8 h-8 bg-blue-400 rounded-full mx-auto flex items-center justify-center transition-all duration-300"
+                                 :class="{ 'animate-bounce': isAlbumAnimated }">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    
+                    
+                </div>
+            </div>
+        </div>    
+             <!-- Files List -->
+            <div data-orientation="horizontal" 
+                class="w-full max-w-[64rem] mx-auto flex flex-col gap-y-8 lg:grid lg:grid-cols-[repeat(var(--count),minmax(0,1fr))] -space-x-px" style="--count: 2;"><!---->
+                <div data-orientation="vertical" class="relative grid rounded-lg p-6 lg:p-8 xl:p-10 gap-6 bg-default ring-2 ring-blue-700 ring-default lg:rounded-none ring-inset -mb-px"><!---->
+                    <div class="flex flex-col min-w-0">
+                        <div class="flex items-center gap-3">
+                            <div class="text-highlighted text-2xl sm:text-3xl text-pretty font-semibold">Boletín</div><!---->
+                        </div>
+                        <div class="text-muted text-base text-pretty mt-2">Indicaciones para las actualizaciones.</div>
+                        
+                        <div class="flex items-center gap-1 mt-6">
+                            <div class="text-highlighted text-3xl sm:text-4xl font-semibold">2026</div>
+                            <div class="flex flex-col justify-between min-w-0">
+                                <span class="text-toned truncate text-xs font-medium">material en formato PDF</span>
+                                <span class="text-muted truncate text-xs font-medium">plus actualizaciones</span>
+                            </div>
+                        </div>
+                        
+                        <ul class="flex flex-col gap-3 flex-1 mt-6 grow-0">
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Considerar sólo 5 capítulos</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Renombrar los capítulos consecutivamente ( del 1 al 5 )</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Helico Summary ( Hacer la actualización )</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Helico Practice: 5 preguntas ( 4 DECO y 1 convencional )</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Helico Workshop: 5 preguntas ( 4 DECO y 1 convencional )</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Helico Reinforcement: 5 preguntas convencionales</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="flex flex-col gap-6 items-center justify-end"><!----><!---->
+                        <a href="#" rel="noopener noreferrer" 
+                            class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-3 py-2 text-sm gap-2 w-full justify-center text-inverted bg-white hover:bg-white/75 active:bg-white/75 disabled:bg-white aria-disabled:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"><!---->
+                            <span class="truncate">Todas las preguntas sin errores</span><!---->
+                        </a><!---->
+                    </div>
+                    
+                </div><!---->
+                <div data-orientation="vertical" class="relative grid rounded-lg p-6 lg:p-8 xl:p-10 gap-6 bg-elevated/50 ring-2 ring-blue-700 ring-default lg:rounded-none ring-inset -mb-px"><!---->
+                    <div class="flex flex-col min-w-0">
+                        <div class="flex items-center gap-3">
+                            <div class="text-highlighted text-2xl sm:text-3xl text-pretty font-semibold">PPT 2026</div><!---->
+                        </div>
+                        <div class="text-muted text-base text-pretty mt-2">Considerar las siguientes indicaciones para actualizar.</div>
+                        <div class="flex items-center gap-1 mt-6"><!---->
+                            <div class="text-highlighted text-3xl sm:text-4xl font-semibold">2026</div>
+                            <div class="flex flex-col justify-between min-w-0">
+                                <span class="text-toned truncate text-xs font-medium">material digital ppt</span>
+                                <span class="text-muted truncate text-xs font-medium">plus actualizaciones</span>
+                            </div>
+                        </div>
+                        <ul class="flex flex-col gap-3 flex-1 mt-6 grow-0">
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Mantener el formato y estructura de las PPTs</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Helico Motivación ( despierta el interés del estudiante )</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Helico Theory ( Cuadro sinóptico, resumen, formulario, etc )</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Helico Practice: 5 preguntas con su resolución y animado</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Helico Workshop: 5 preguntas solo su enunciado</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="flex flex-col gap-6 items-center justify-end"><!----><!---->
+                        <a href="#" rel="noopener noreferrer" 
+                            class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-3 py-2 text-sm gap-2 w-full justify-center text-inverted bg-white hover:bg-white/75 active:bg-white/75 disabled:bg-white aria-disabled:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"><!---->
+                            <span class="truncate">Actualizar los cambios igual al Boletín</span><!---->
+                        </a><!---->
+                    </div>
+                </div><!---->
+                
+            </div>
+
+            <div data-orientation="horizontal" 
+                class="w-full max-w-[64rem] mx-auto flex flex-col gap-y-8 pt-10 pb-[10rem] overflow-y-auto lg:grid lg:grid-cols-[repeat(var(--count),minmax(0,1fr))] -space-x-px" style="--count: 2;"><!---->
+                <div data-orientation="vertical" class="relative grid rounded-lg p-6 lg:p-8 xl:p-10 gap-6 bg-default ring-2 ring-blue-700 ring-default lg:rounded-none ring-inset -mb-px"><!---->
+                    <div class="flex flex-col min-w-0">
+                        <div class="flex items-center gap-3">
+                            <div class="text-highlighted text-2xl sm:text-3xl text-pretty font-semibold">Simulacro</div><!---->
+                        </div>
+                        <div class="text-muted text-base text-pretty mt-2">Indicaciones para su correcta elaboración.</div>
+                        
+                        <div class="flex items-center gap-1 mt-6">
+                            <div class="text-highlighted text-3xl sm:text-4xl font-semibold">2026</div>
+                            <div class="flex flex-col justify-between min-w-0">
+                                <span class="text-toned truncate text-xs font-medium">material en formato PDF</span>
+                                <span class="text-muted truncate text-xs font-medium">plus actualizaciones</span>
+                            </div>
+                        </div>
+                        
+                        <ul class="flex flex-col gap-3 flex-1 mt-6 grow-0">
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Son 20 preguntas en general</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Cada pregunta debe ser presentado con clave y sustento</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">3 preguntas por cada curso de matemática</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">4 preguntas para Física y Química</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">4 preguntas para Lenguaje y Raz Verbal</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Los de 3 preguntas: 2 DECO y 1 convencional.</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Los de 4 preguntas: 2 DECO y 2 convencional.</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Simulacro I - capítulos 1; 2 y 3.</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Simulacro II - capítulos 4 y 5.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="flex flex-col gap-6 items-center justify-end"><!----><!---->
+                        <a href="#" rel="noopener noreferrer" 
+                            class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-3 py-2 text-sm gap-2 w-full justify-center text-inverted bg-white hover:bg-white/75 active:bg-white/75 disabled:bg-white aria-disabled:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"><!---->
+                            <span class="truncate">Se requieren dos SIMULACROS por curso</span><!---->
+                        </a><!---->
+                    </div>
+                    
+                </div><!---->
+                <div data-orientation="vertical" class="relative grid rounded-lg p-6 lg:p-8 xl:p-10 gap-6 bg-elevated/50 ring-2 ring-blue-700 ring-default lg:rounded-none ring-inset -mb-px"><!---->
+                    <div class="flex flex-col min-w-0">
+                        <div class="flex items-center gap-3">
+                            <div class="text-highlighted text-2xl sm:text-3xl text-pretty font-semibold">Helico Test</div><!---->
+                        </div>
+                        <div class="text-muted text-base text-pretty mt-2">Indicaciones para su correcta elaboración.</div>
+                        <div class="flex items-center gap-1 mt-6"><!---->
+                            <div class="text-highlighted text-3xl sm:text-4xl font-semibold">2026</div>
+                            <div class="flex flex-col justify-between min-w-0">
+                                <span class="text-toned truncate text-xs font-medium">material digital Interactivo</span>
+                                <span class="text-muted truncate text-xs font-medium">plus actualizaciones</span>
+                            </div>
+                        </div>
+                        <ul class="flex flex-col gap-3 flex-1 mt-6 grow-0">
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Actualizar o modificar las preguntas</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Elaborar 3 preguntas dinámico e interactivo para CLASSROOM</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Se van a desarrollar en EDUCAPLAY</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Se van a desarrollar en YOUTUBE interactivo</span>
+                            </li>
+                            <li class="flex items-center gap-2 min-w-0">
+                                <span class="iconify i-lucide:circle-check size-5 shrink-0 text-primary" aria-hidden="true"></span>
+                                <span class="text-muted text-sm truncate">Se van a desarrollar en Práctica Guiada</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="flex flex-col gap-6 items-center justify-end"><!----><!---->
+                        <a href="#" rel="noopener noreferrer" 
+                            class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-3 py-2 text-sm gap-2 w-full justify-center text-inverted bg-white hover:bg-white/75 active:bg-white/75 disabled:bg-white aria-disabled:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"><!---->
+                            <span class="truncate">Todas las preguntas para plataforma classroom</span><!---->
+                        </a><!---->
+                    </div>
+                </div><!---->
+                
+            </div>
+
+        
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 glass-effect bg-white/10 border-t border-white/20 safe-area-pb">
+            <div class="flex items-center justify-around py-2">
+                <a v-for="(tab, index) in bottomTabs" :key="index"
+                   :href="tab.href"
+                   :target="tab.target || '_self'"
+                   class="touch-target flex flex-col items-center gap-0.5 p-1 transition-all duration-300 transform hover:scale-105 active:scale-95 no-underline hover:bg-white/5 rounded-lg">
+                    <div :class="tab.bgColor" 
+                         class="w-5 h-5 rounded flex items-center justify-center transition-all duration-300 shadow-sm">
+                        <span class="text-white text-xs font-bold" v-html="tab.icon"></span>
+                    </div>
+                    <span class="text-xs text-white/80 font-medium transition-all duration-300">
+                        {{ tab.label }}
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        
+    </div>
+
+     <script src="app.js"></script>
+    
+</body>
+</html>
