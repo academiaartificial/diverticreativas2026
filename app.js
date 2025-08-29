@@ -20,7 +20,7 @@
                             icon: '⬇', 
                             label: 'Materiales 2026', 
                             bgColor: 'bg-blue-400',
-                            href: 'materiales.html',
+                            href: 'materials.html',
                             target: '_self'
                         },
                         { 
